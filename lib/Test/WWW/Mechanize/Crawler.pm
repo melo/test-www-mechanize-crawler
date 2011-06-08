@@ -52,7 +52,6 @@ sub crawler {
       fail("Failed URL '$url' (referer $ref), " . $mech->content);
       next;
     }
-    ok($mech->is_html, "... and it looks like HTML");
 
     for my $l ($mech->links) {
       next unless $l->tag eq 'a' or $l->tag eq 'img';
