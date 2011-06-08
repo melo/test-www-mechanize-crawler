@@ -5,10 +5,6 @@ package Test::WWW::Mechanize::Crawler;
 use strict;
 use warnings;
 use Test::More;
-use Exporter;
-
-our @ISA    = qw( Exporter );
-our @EXPORT = qw( crawler );
 
 sub new {
   my ($class, %args) = @_;
