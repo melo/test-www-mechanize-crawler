@@ -5,11 +5,20 @@ package Test::WWW::Mechanize::Crawler;
 use strict;
 use warnings;
 use Test::More;
+use Carp 'confess';
+use URI;
 
 sub new {
   my ($class, %args) = @_;
-  my $self = bless \%args, $class;
+  my $self = {};
 
+  $self->{start_url} = URI->new(delete $args{start_url})
+    || confess('Invalid parameter start_url,');
+
+  ## FIXME: create a default mechanize here?
+  $self->{mech} = delete $args{mech};
+
+  $self = bless $self, $class;
   $self->reset;
 
   return $self;
