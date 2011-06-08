@@ -10,7 +10,7 @@ use URI;
 
 sub new {
   my ($class, %args) = @_;
-  my $self = {};
+  my $self = bless {}, $class;
 
   $self->{start_url} = URI->new(delete $args{start_url})
     || confess('Invalid parameter start_url,');
@@ -18,9 +18,10 @@ sub new {
   ## FIXME: create a default mechanize here?
   $self->{mech} = delete $args{mech};
 
-  $self = bless $self, $class;
-  $self->reset;
+  $self->{url_filter} = delete $args{url_filter}
+    || \&default_link_filter;
 
+  $self->reset;
   return $self;
 }
 
@@ -40,6 +41,7 @@ sub crawler {
 
   my $seen  = $self->{seen};
   my $queue = $self->{queue};
+  my $url_f = $self->{url_filter};
 
   while (@$queue) {
     my $item = shift @$queue;
@@ -54,19 +56,25 @@ sub crawler {
     }
 
     for my $l ($mech->links) {
-      my $u = $l->url;
-      next unless $u and $u ne '#';
-
-      $u = $l->url_abs;
-      next unless $self->_is_relative($u);
-      push @$queue, {url => $u, referer => $url};
+      my ($u, $abs) = ($l->url, $l->url_abs);
+      next if $url_f->($self, $u, $abs);
+      push @$queue, {url => $abs, referer => $url};
     }
   }
 
   return;
 }
 
-sub _is_relative {
+sub default_link_filter {
+  my ($self, $u, $url) = @_;
+
+  return 1 unless $u and $u ne '#';
+  return 1 unless $self->uri_is_relative($url);
+
+  return;
+}
+
+sub uri_is_relative {
   my ($self, $u) = @_;
   my $start = $self->{start_url};
 
