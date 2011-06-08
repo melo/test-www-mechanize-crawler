@@ -56,11 +56,37 @@ sub crawler {
     for my $l ($mech->links) {
       my $u = $l->url;
       next unless $u and $u ne '#';
+
+      $u = $l->url_abs;
+      next unless $self->_is_relative($u);
       push @$queue, {url => $u, referer => $url};
     }
   }
 
   return;
+}
+
+sub _is_relative {
+  my ($self, $u) = @_;
+  my $start = $self->{start_url};
+
+  my $sscheme = $start->scheme || '';
+  my $uscheme = $u->scheme     || '';
+  return unless $sscheme eq $uscheme;
+
+  my $shost = $start->host || '';
+  my $uhost = $u->host     || '';
+  return unless $shost eq $uhost;
+
+  my $sport = $start->port || 80;
+  my $uport = $u->port     || 80;
+  return unless $sport == $uport;
+
+  my $spath = $start->path || '/';
+  my $upath = $u->path     || '/';
+  return unless $upath =~ /^$spath/;
+
+  return 1;
 }
 
 
