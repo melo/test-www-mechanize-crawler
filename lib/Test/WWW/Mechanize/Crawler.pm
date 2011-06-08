@@ -49,9 +49,7 @@ sub crawler {
       next unless $l->tag eq 'a' or $l->tag eq 'img';
 
       my $u = $l->url;
-      ok($u, "... link found is not empty ($u)");
-      isnt($u, '#', "...... and not '#' ($u)");
-
+      next unless $u and $u ne '#';
       push @$queue, {url => $u, referer => $url};
     }
   }
