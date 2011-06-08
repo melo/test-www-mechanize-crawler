@@ -54,8 +54,6 @@ sub crawler {
     }
 
     for my $l ($mech->links) {
-      next unless $l->tag eq 'a' or $l->tag eq 'img';
-
       my $u = $l->url;
       next unless $u and $u ne '#';
       push @$queue, {url => $u, referer => $url};
